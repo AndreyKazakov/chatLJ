@@ -6,6 +6,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 
@@ -46,8 +47,10 @@ public void go() {
 private void setUpNetworking() {
     try{
        sock = new Socket("127.0.0.1", 5000);
+       InputStreamReader streamReader = new InputStreamReader(sock.getInputStream());
+       reader = new BufferedReader(streamReader);
        writer = new PrintWriter(sock.getOutputStream());
-        System.out.println("networking established");
+       System.out.println("networking established");
     }
     catch (IOException ex) {
         ex.printStackTrace();
@@ -67,6 +70,22 @@ private void setUpNetworking() {
         outgoing.setText("");
         outgoing.requestFocus();
         }
+    }
+
+    public class IncomingReader implements Runnable {
+        public void run(){
+            String message;
+            try {
+                while ((message = reader.readLine()) != null) {
+                    System.out.println("read " + message);
+                    incoming.append(message + "\n");
+                }
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+
+        }
+
     }
 
     public static void main(String[] args) {
